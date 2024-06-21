@@ -7,7 +7,7 @@ import UIKit
 import PayFortSDK
 
 class CustomPaymentViewController: UIViewController {
-    let cardNumberView = CardNumberView()
+    let cardNumberView = CustomCardNumberView()
     let expiryDateView = ExpiryDateView()
     let cvcNumberView = CVCNumberView()
     let holderNameView = HolderNameView()
@@ -74,12 +74,7 @@ class CustomPaymentViewController: UIViewController {
         setDefaultLabel.text = "Set as Default"
         setDefaultLabel.textColor = .black
 
-        configureTextFieldsOfUIView(cardNumberView, placeholder: "Card Number")
-        configureTextFieldsOfUIView(holderNameView, placeholder: "Card Holder")
-        configureTextFieldsOfUIView(expiryDateView, placeholder: "Expiry Date")
-        configureTextFieldsOfUIView(cvcNumberView, placeholder: "CVV")
-
-        let builder = PayComponents(cardNumberView: cardNumberView, expiryDateView: expiryDateView, cvcNumberView: cvcNumberView, holderNameView: holderNameView, rememberMe: true, language: "en")
+        let builder = PayComponents(cardNumberView: cardNumberView.cardNumberView, expiryDateView: expiryDateView, cvcNumberView: cvcNumberView, holderNameView: holderNameView, rememberMe: true, language: "en")
         payButton.setup(with: request, enviroment: environment, payButtonBuilder: builder, viewController: self) {
             print("process started")
         } success: { (requestDic, responeDic) in
@@ -97,17 +92,6 @@ class CustomPaymentViewController: UIViewController {
         payButton.setTitle("Add Card", for: .normal)
         payButton.backgroundColor = .blue
         payButton.layer.cornerRadius = 6
-    }
-
-    private func configureTextFieldsOfUIView(_ uiView: UIView, placeholder: String) {
-        for subview in view.subviews {
-            if let textField = subview as? UITextField {
-                configureTextField(textField, placeholder: placeholder)
-            } else {
-                // Recursively apply to subviews
-                configureTextFieldsOfUIView(subview, placeholder: placeholder)
-            }
-        }
     }
 
     private func configureTextField(_ textField: UITextField, placeholder: String) {
@@ -229,5 +213,41 @@ extension UITextField {
         let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: left, height: self.frame.height))
         self.leftView = paddingView
         self.leftViewMode = .always
+    }
+}
+
+class CustomCardNumberView: UIView {
+    let cardNumberView = CardNumberView()
+
+    init() {
+        super.init(frame: .zero)
+        setupView()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupView()
+    }
+
+    private func setupView() {
+        self.addSubview(cardNumberView)
+        cardNumberView.translatesAutoresizingMaskIntoConstraints = false
+        cardNumberView.layer.borderColor = UIColor.clear.cgColor
+        cardNumberView.layer.borderWidth = 0.0
+
+        let padding = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+
+        // Set constraints for padding
+        NSLayoutConstraint.activate([
+            cardNumberView.topAnchor.constraint(equalTo: self.topAnchor, constant: padding.top),
+            cardNumberView.bottomAnchor.constraint(equalTo: self.bottomAnchor, constant: -padding.bottom),
+            cardNumberView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: padding.left),
+            cardNumberView.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -padding.right)
+        ])
+
+        // Apply other custom styles if needed
+        layer.cornerRadius = 6.0
+        layer.borderWidth = 1.0
+        layer.borderColor = UIColor.gray.cgColor
     }
 }
