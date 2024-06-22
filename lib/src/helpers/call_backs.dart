@@ -24,3 +24,10 @@ class ApplePayResultCallback {
 
   ApplePayResultCallback({required this.onSucceeded, required this.onFailed});
 }
+
+class DirectPayResultCallback {
+  final SucceededCallback onSucceeded;
+  final FailedCallback onFailed;
+
+  DirectPayResultCallback({required this.onSucceeded, required this.onFailed});
+}

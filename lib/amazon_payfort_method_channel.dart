@@ -17,6 +17,8 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
 
   static ApplePayResultCallback? _applePayResultCallback;
 
+  static DirectPayResultCallback? _directPayResultCallback;
+
   @override
   Future<bool> initialize(PayFortOptions options) async {
     Map<String, dynamic> arguments = _platform.isAndroid
@@ -54,6 +56,15 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
   }) {
     _payFortResultCallback = callback;
     return _methodChannel.invokeMethod('callPayFort', request.asMap());
+  }
+
+  @override
+  Future<void> callDirectPay({
+    required FortRequest request,
+    required DirectPayResultCallback callback,
+  }) {
+    _directPayResultCallback = callback;
+    return _methodChannel.invokeMethod('callDirectPay', request.asMap());
   }
 
   @override
@@ -107,6 +118,18 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
             _applePayResultCallback?.onFailed(call.arguments['message']);
           }
           break;
+        case _MethodType.directPaySucceeded:
+          if (_directPayResultCallback != null) {
+            PayFortResult result = PayFortResult.fromMap(
+                Map<String, dynamic>.from(call.arguments));
+            _directPayResultCallback?.onSucceeded(result);
+          }
+          break;
+        case _MethodType.directPayFailed:
+          if (_directPayResultCallback != null) {
+            _directPayResultCallback?.onFailed(call.arguments['message']);
+          }
+          break;
         default:
           throw Exception('unknown method called from native');
       }
@@ -129,4 +152,8 @@ class _MethodType {
   static const String applePaySucceeded = 'apple_pay_succeeded';
 
   static const String applePayFailed = 'apple_pay_failed';
+
+  static const String directPaySucceeded = 'direct_succeeded';
+
+  static const String directPayFailed = 'direct_failed';
 }

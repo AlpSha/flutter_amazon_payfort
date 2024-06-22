@@ -73,6 +73,14 @@ class AmazonPayfortPlugin : FlutterPlugin,
                 )
             }
 
+            "callDirectPay" -> {
+                fortRequest.requestMap = createRequestMap(call)
+                service.callDirectPay(
+                    binding.activity,
+                    fortRequest
+                )
+            }
+
             else -> {
                 result.notImplemented()
             }
@@ -105,12 +113,17 @@ class AmazonPayfortPlugin : FlutterPlugin,
 
         val tokenName = call.argument<String?>("token_name")
         if (tokenName != null) {
-            requestMap["tokenName"] = tokenName
+            requestMap["token_name"] = tokenName
         }
 
         val phoneNumber = call.argument<String?>("phone_number")
         if (tokenName != null) {
             requestMap["phone_number"] = phoneNumber
+        }
+
+        val cardSecurityCode = call.argument<String?>("card_security_code")
+        if (cardSecurityCode != null) {
+            requestMap["card_security_code"] = cardSecurityCode
         }
 
         return requestMap

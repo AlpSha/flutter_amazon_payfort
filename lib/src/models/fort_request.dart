@@ -56,6 +56,9 @@ class FortRequest {
   ///
   final String? phoneNumber;
 
+  /// Use this for direct payments.
+  final String? cardSecurityCode;
+
   FortRequest({
     required this.amount,
     required this.customerName,
@@ -70,6 +73,7 @@ class FortRequest {
     this.paymentOption,
     this.eci,
     this.phoneNumber,
+    this.cardSecurityCode,
   });
 
   FortRequest copyWith({
@@ -86,6 +90,7 @@ class FortRequest {
     String? paymentOption,
     String? eci,
     String? phoneNumber,
+    String? cardSecurityCode,
   }) {
     return FortRequest(
       amount: amount ?? this.amount,
@@ -101,6 +106,7 @@ class FortRequest {
       paymentOption: paymentOption ?? this.paymentOption,
       eci: eci ?? this.eci,
       phoneNumber: phoneNumber ?? this.phoneNumber,
+      cardSecurityCode: cardSecurityCode ?? this.cardSecurityCode,
     );
   }
 
@@ -119,6 +125,7 @@ class FortRequest {
       'payment_option': paymentOption,
       'eci': eci,
       'phone_number': phoneNumber,
+      'card_security_code': cardSecurityCode,
     };
   }
 }
