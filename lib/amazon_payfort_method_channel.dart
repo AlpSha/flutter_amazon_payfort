@@ -1,5 +1,6 @@
 import 'package:amazon_payfort/amazon_payfort.dart';
 import 'package:amazon_payfort/src/helpers/local_platform.dart';
+import 'package:amazon_payfort/src/models/pay_fort_card_page_data.dart';
 import 'package:flutter/services.dart';
 
 import 'amazon_payfort_platform_interface.dart';
@@ -51,9 +52,14 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
   Future<void> callPayFort({
     required FortRequest request,
     required PayFortResultCallback callback,
+    required PayFortCardPageData pageData,
   }) {
     _payFortResultCallback = callback;
-    return _methodChannel.invokeMethod('callPayFort', request.asMap());
+    final data = {
+      ...request.asMap(),
+      ...pageData.asMap(),
+    };
+    return _methodChannel.invokeMethod('callPayFort', data);
   }
 
   @override

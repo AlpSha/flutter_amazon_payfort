@@ -2,6 +2,7 @@ import 'package:amazon_payfort/amazon_payfort_platform_interface.dart';
 import 'package:amazon_payfort/src/helpers/call_backs.dart';
 import 'package:amazon_payfort/src/helpers/exceptions.dart';
 import 'package:amazon_payfort/src/models/fort_request.dart';
+import 'package:amazon_payfort/src/models/pay_fort_card_page_data.dart';
 import 'package:amazon_payfort/src/models/pay_fort_options.dart';
 
 export 'src/enums/fort_environment.dart';
@@ -67,16 +68,15 @@ class AmazonPayfort {
     }
   }
 
-  /// Standard payment screen.
-  /// You can use the standard Amazon Payment Services mobile SDK interface to display a standard payment screen.
-  /// This standard payment view is customizable in three ways.
+  /// Customized payment screen.
   ///
   Future<void> callPayFort({
     required FortRequest request,
     required PayFortResultCallback callBack,
+    required PayFortCardPageData pageData,
   }) async {
     if (_isInitialize) {
-      return await _platform.callPayFort(request: request, callback: callBack);
+      return await _platform.callPayFort(request: request, callback: callBack, pageData: pageData);
     } else {
       throw PayFortNotInitialzedException();
     }

@@ -44,14 +44,14 @@ class PaymentProvider extends DefaultChangeNotifier {
         customerIp: (await _info.getWifiIP() ?? ''),
       );
 
-      _payfort.callPayFort(
-        request: request,
-        callBack: PayFortResultCallback(
-          onSucceeded: onSucceeded,
-          onFailed: onFailed,
-          onCancelled: onCancelled,
-        ),
-      );
+      // _payfort.callPayFort(
+      //   request: request,
+      //   callBack: PayFortResultCallback(
+      //     onSucceeded: onSucceeded,
+      //     onFailed: onFailed,
+      //     onCancelled: onCancelled,
+      //   ),
+      // );
     } catch (e) {
       onFailed(e.toString());
     }

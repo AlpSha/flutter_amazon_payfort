@@ -1,4 +1,5 @@
 import 'package:amazon_payfort/amazon_payfort.dart';
+import 'package:amazon_payfort/src/models/pay_fort_card_page_data.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'amazon_payfort_method_channel.dart';
@@ -36,6 +37,7 @@ abstract class AmazonPayfortPlatform extends PlatformInterface {
   Future<void> callPayFort({
     required FortRequest request,
     required PayFortResultCallback callback,
+    required PayFortCardPageData pageData,
   });
 
   Future<void> callPayFortForApplePay({

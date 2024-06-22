@@ -69,7 +69,9 @@ class AmazonPayfortPlugin : FlutterPlugin,
                 fortRequest.requestMap = createRequestMap(call)
                 service.callPayFort(
                     binding.activity,
-                    fortRequest
+                    fortRequest,
+                    call,
+                    context
                 )
             }
 

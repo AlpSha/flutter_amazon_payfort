@@ -1,30 +1,40 @@
 package com.vvvirani.amazon_payfort
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.util.Log
-
 import com.payfort.fortpaymentsdk.FortSdk
 import com.payfort.fortpaymentsdk.callbacks.FortCallBackManager
-import com.payfort.fortpaymentsdk.callbacks.FortInterfaces
 import com.payfort.fortpaymentsdk.domain.model.FortRequest
-import com.payfort.fortpaymentsdk.exceptions.FortException
+import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 class PayFortService {
 
-     val payfortRequestCode = 1166
+    val payfortRequestCode = 1166
 
     private var options: PayFortOptions? = null
 
     private var channel: MethodChannel? = null
 
-    private var tag = this.javaClass.simpleName
-
     private var fortCallback: FortCallBackManager? = null
 
+    companion object {
+        fun getEnvironment(environment: String?): String {
+            return when (environment) {
+                "test" -> {
+                    return FortSdk.ENVIRONMENT.TEST
+                }
+                "production" -> {
+                    return FortSdk.ENVIRONMENT.PRODUCTION
+                }
+                else -> FortSdk.ENVIRONMENT.TEST
+            }
+        }
+    }
 
     fun initService(channel: MethodChannel, options: PayFortOptions) {
         if (fortCallback == null) {
@@ -38,67 +48,54 @@ class PayFortService {
         if (fortCallback != null) {
             fortCallback?.onActivityResult(requestCode, resultCode, data)
         }
-
     }
 
     fun callPayFort(
         activity: Activity,
         fortRequest: FortRequest,
+        call: MethodCall,
+        context: Context
     ) {
-        fortRequest.isShowResponsePage = options?.isShowResponsePage ?: true
-        try {
-            FortSdk.getInstance().registerCallback(
-                activity,
-                fortRequest,
-                getEnvironment(options?.environment), payfortRequestCode,
-                fortCallback,
-                options?.showLoading ?: true,
-                object : FortInterfaces.OnTnxProcessed {
-                    override fun onSuccess(
-                        requestDic: MutableMap<String, Any>?,
-                        responeDic: MutableMap<String, Any>?,
-                    ) {
-                        Log.d(tag, "onSuccess : $requestDic $responeDic")
-                        channel?.invokeMethod("succeeded", responeDic)
-                        return
-                    }
+        val headerText = call.argument<String>("headerText")
+        val headerIconUrl = call.argument<String>("headerIconUrl")
+        val secondaryHeaderText = call.argument<String>("secondaryHeaderText")
+        val iconUrls = call.argument<List<String>>("iconUrls")
+        val headerTextColor = call.argument<Long>("headerTextColor")
+        val secondaryHeaderTextColor = call.argument<Long>("secondaryHeaderTextColor")
+        val toggleButtonActiveColor = call.argument<Long>("toggleButtonActiveColor")
+        val toggleButtonInactiveColor = call.argument<Long>("toggleButtonInactiveColor")
+        val cardNumberLabel = call.argument<String>("cardNumberLabel")
+        val cardHolderLabel = call.argument<String>("cardHolderLabel")
+        val expiryDateLabel = call.argument<String>("expiryDateLabel")
+        val cvvLabel = call.argument<String>("cvvLabel")
+        val textFieldHintColor = call.argument<Long>("textFieldHintColor")
+        val saveCardDataLabel = call.argument<String>("saveCardDataLabel")
+        val setCardDefaultLabel = call.argument<String>("setCardDefaultLabel")
+        val addCardButtonLabel = call.argument<String>("addCardButtonLabel")
+        val addCardButtonBackgroundColor = call.argument<Long>("addCardButtonBackgroundColor")
 
-                    override fun onFailure(
-                        requestDic: MutableMap<String, Any>?,
-                        responeDic: MutableMap<String, Any>?,
-                    ) {
-                        Log.d(tag, "onFailure : $requestDic $responeDic")
-                        val result: MutableMap<String, Any?> = HashMap()
-                        result["message"] = responeDic?.get("response_message")
-                        channel?.invokeMethod("failed", result)
-                        return
-                    }
-
-                    override fun onCancel(
-                        requestDic: MutableMap<String, Any>?,
-                        responeDic: MutableMap<String, Any>?,
-                    ) {
-                        Log.d(tag, "onCancel : $requestDic $responeDic")
-                        channel?.invokeMethod("cancelled", null)
-                        return
-                    }
-                },
-            )
-        } catch (e: FortException) {
-            Log.d(tag, "FortException : ${e.code}, ${e.message}")
+        val intent = Intent(context, CustomPaymentViewActivity::class.java).apply {
+            putExtra("headerText", headerText)
+            putExtra("headerIconUrl", headerIconUrl)
+            putExtra("secondaryHeaderText", secondaryHeaderText)
+            putStringArrayListExtra("iconUrls", ArrayList(iconUrls))
+            putExtra("headerTextColor", headerTextColor?.toInt())
+            putExtra("toggleButtonActiveColor", toggleButtonActiveColor?.toInt())
+            putExtra("toggleButtonInactiveColor", toggleButtonInactiveColor?.toInt())
+            putExtra("cardNumberLabel", cardNumberLabel)
+            putExtra("cardHolderLabel", cardHolderLabel)
+            putExtra("expiryDateLabel", expiryDateLabel)
+            putExtra("cvvLabel", cvvLabel)
+            putExtra("textFieldHintColor", textFieldHintColor?.toInt())
+            putExtra("saveCardDataLabel", saveCardDataLabel)
+            putExtra("setCardDefaultLabel", setCardDefaultLabel)
+            putExtra("addCardButtonLabel", addCardButtonLabel)
+            putExtra("addCardButtonBackgroundColor", addCardButtonBackgroundColor?.toInt())
+            putExtra("environment", options?.environment)
+            putExtra("fortRequest", fortRequest)
         }
-    }
-
-    private fun getEnvironment(environment: String?): String {
-        return when (environment) {
-            "test" -> {
-                return FortSdk.ENVIRONMENT.TEST
-            }
-            "production" -> {
-                return FortSdk.ENVIRONMENT.PRODUCTION
-            }
-            else -> FortSdk.ENVIRONMENT.TEST
-        }
+        CustomPaymentViewActivity.channel = channel
+        activity.startActivity(intent)
     }
 
     fun createSignature(shaType: String, concatenatedString: String): String? {
@@ -112,5 +109,4 @@ class PayFortService {
         }
         return null
     }
-
 }
