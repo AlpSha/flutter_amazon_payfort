@@ -1,17 +1,14 @@
 package com.vvvirani.amazon_payfort
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 
 import com.payfort.fortpaymentsdk.FortSdk
 import com.payfort.fortpaymentsdk.callbacks.FortCallBackManager
 import com.payfort.fortpaymentsdk.callbacks.FortInterfaces
-import com.payfort.fortpaymentsdk.callbacks.PayFortCallback
 import com.payfort.fortpaymentsdk.domain.model.FortRequest
 import com.payfort.fortpaymentsdk.exceptions.FortException
-import com.payfort.fortpaymentsdk.views.PayfortPayButton
 import io.flutter.plugin.common.MethodChannel
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -90,41 +87,6 @@ class PayFortService {
         } catch (e: FortException) {
             Log.d(tag, "FortException : ${e.code}, ${e.message}")
         }
-    }
-
-    fun callDirectPay(
-        context: Context,
-        fortRequest: FortRequest,
-    ) {
-        fortRequest.isShowResponsePage = options?.isShowResponsePage ?: true
-        val btnPay = PayfortPayButton(context)
-        val callback = object: PayFortCallback {
-            override fun startLoading() {
-            }
-
-            override fun onSuccess(
-                requestParamsMap: Map<String, Any>,
-                fortResponseMap: Map<String, Any>
-            ) {
-                Log.d(tag, "onSuccess : $requestParamsMap $fortResponseMap")
-                channel?.invokeMethod("direct_succeeded", fortResponseMap)
-                return
-            }
-            override fun onFailure(
-                requestParamsMap: Map<String, Any>,
-                fortResponseMap: Map<String, Any>
-            ) {
-                Log.d(tag, "onFailure : $requestParamsMap $fortResponseMap")
-                val result: MutableMap<String, Any?> = HashMap()
-                result["message"] = fortResponseMap["response_message"]
-                channel?.invokeMethod("direct_failed", result)
-                return
-            }
-        }
-
-        btnPay.setup(getEnvironment(options?.environment), fortRequest, callback)
-
-        btnPay.performClick()
     }
 
     private fun getEnvironment(environment: String?): String {

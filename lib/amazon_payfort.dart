@@ -82,17 +82,6 @@ class AmazonPayfort {
     }
   }
 
-  Future<void> callDirectPay({
-    required FortRequest request,
-    required DirectPayResultCallback callback,
-  }) async {
-    if (_isInitialize) {
-      return await _platform.callDirectPay(request: request, callback: callback);
-    } else {
-      throw PayFortNotInitialzedException();
-    }
-  }
-
   ///  Apple Pay is a digital wallet that allows your customers to
   /// make payments using different Apple devices via the Amazon Payment Services iOS SDK.
   Future<void> callPayFortForApplePay({
