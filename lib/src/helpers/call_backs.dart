@@ -6,6 +6,8 @@ typedef FailedCallback = void Function(String message);
 
 typedef CancelledCallback = void Function();
 
+typedef StartedCallback = void Function();
+
 class PayFortResultCallback {
   final SucceededCallback onSucceeded;
   final FailedCallback onFailed;
@@ -21,6 +23,7 @@ class PayFortResultCallback {
 class ApplePayResultCallback {
   final SucceededCallback onSucceeded;
   final FailedCallback onFailed;
+  final StartedCallback onStarted;
 
-  ApplePayResultCallback({required this.onSucceeded, required this.onFailed});
+  ApplePayResultCallback({required this.onSucceeded, required this.onFailed, required this.onStarted});
 }

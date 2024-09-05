@@ -7,9 +7,8 @@ import 'amazon_payfort_platform_interface.dart';
 /// An implementation of [AmazonPayfortPlatform] that uses method channels.
 class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
   /// The method channel used to interact with the native platform.
-  final MethodChannel _methodChannel =
-      const MethodChannel('vvvirani/amazon_payfort')
-        ..setMethodCallHandler(_nativeCallHandler);
+  final MethodChannel _methodChannel = const MethodChannel('vvvirani/amazon_payfort')
+    ..setMethodCallHandler(_nativeCallHandler);
 
   final LocalPlatform _platform = LocalPlatform.instance;
 
@@ -19,12 +18,9 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
 
   @override
   Future<bool> initialize(PayFortOptions options) async {
-    Map<String, dynamic> arguments = _platform.isAndroid
-        ? options.payFortAndroidOptions()
-        : options.payFortIosOptions();
-    return (await _methodChannel.invokeMethod<bool?>(
-            'initialize', arguments)) ??
-        false;
+    Map<String, dynamic> arguments =
+        _platform.isAndroid ? options.payFortAndroidOptions() : options.payFortIosOptions();
+    return (await _methodChannel.invokeMethod<bool?>('initialize', arguments)) ?? false;
   }
 
   @override
@@ -40,10 +36,7 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
   }) {
     return _methodChannel.invokeMethod<String?>(
       'generateSignature',
-      <String, dynamic>{
-        'shaType': shaType,
-        'concatenatedString': concatenatedString
-      },
+      <String, dynamic>{'shaType': shaType, 'concatenatedString': concatenatedString},
     );
   }
 
@@ -70,8 +63,7 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
       arguments.putIfAbsent('country_code', () => countryIsoCode);
       return _methodChannel.invokeMethod('callPayFortForApplePay', arguments);
     } else {
-      throw DeviceNotSupportedException(
-          'Apple Pay is not supported on this device');
+      throw DeviceNotSupportedException('Apple Pay is not supported on this device');
     }
   }
 
@@ -80,8 +72,7 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
       switch (call.method) {
         case _MethodType.succeeded:
           if (_payFortResultCallback != null) {
-            PayFortResult result = PayFortResult.fromMap(
-                Map<String, dynamic>.from(call.arguments));
+            PayFortResult result = PayFortResult.fromMap(Map<String, dynamic>.from(call.arguments));
             _payFortResultCallback?.onSucceeded(result);
           }
           break;
@@ -97,14 +88,18 @@ class MethodChannelAmazonPayfort extends AmazonPayfortPlatform {
           break;
         case _MethodType.applePaySucceeded:
           if (_applePayResultCallback != null) {
-            PayFortResult result = PayFortResult.fromMap(
-                Map<String, dynamic>.from(call.arguments));
+            PayFortResult result = PayFortResult.fromMap(Map<String, dynamic>.from(call.arguments));
             _applePayResultCallback?.onSucceeded(result);
           }
           break;
         case _MethodType.applePayFailed:
           if (_applePayResultCallback != null) {
             _applePayResultCallback?.onFailed(call.arguments['message']);
+          }
+          break;
+        case _MethodType.applePayStarted:
+          if (_applePayResultCallback != null) {
+            _applePayResultCallback?.onStarted();
           }
           break;
         default:
@@ -129,4 +124,6 @@ class _MethodType {
   static const String applePaySucceeded = 'apple_pay_succeeded';
 
   static const String applePayFailed = 'apple_pay_failed';
+
+  static const String applePayStarted = 'apple_pay_started';
 }

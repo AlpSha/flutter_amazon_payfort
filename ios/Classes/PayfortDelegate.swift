@@ -117,6 +117,7 @@ public class PayFortDelegate: NSObject, PKPaymentAuthorizationViewControllerDele
         let applePayController = PKPaymentAuthorizationViewController(paymentRequest: paymentRequest)
         applePayController?.delegate = self
         self.viewController?.present(applePayController!, animated: true)
+        self.channel?.invokeMethod("apple_pay_started", arguments: nil)
     }
     
     
